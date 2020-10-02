@@ -1,3 +1,6 @@
+speed: ## run speed test
+	@cargo test --release speed_test -- --nocapture
+
 test: ## run test
 	@cargo test --release
 
@@ -20,4 +23,4 @@ help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 .DEFAULT_GOAL := help
-.PHONY: check clean fmt help lint test
+.PHONY: check clean fmt help lint test speed

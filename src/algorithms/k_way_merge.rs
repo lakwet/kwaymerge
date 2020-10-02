@@ -1,4 +1,4 @@
-use super::utils::copy_nonoverlapping;
+use super::utils::{check_separators, copy_nonoverlapping};
 
 fn forward_merge2<T: Copy + PartialOrd>(
     arr: &mut [T],
@@ -95,45 +95,46 @@ pub fn merge2<T: Copy + PartialOrd>(
 
 pub fn k_way_merge<T: Copy + PartialOrd>(
     arr: &mut [T],
-    separators: &mut Vec<usize>,
+    separators: &Vec<usize>,
 ) {
-    if separators.len() <= 2 {
-        return;
-    }
+    check_separators(separators, arr.len());
+    let mut sep = separators.to_vec();
 
-    if separators.len() == 3 {
+    if sep.len() == 2 {
+        return;
+    } else if sep.len() == 3 {
         let min_length =
-            if separators[1] - separators[0] <= separators[2] - separators[1] {
-                separators[1] - separators[0]
+            if sep[1] - sep[0] <= sep[2] - sep[1] {
+              sep[1] - sep[0]
             } else {
-                separators[2] - separators[1]
+              sep[2] - sep[1]
             };
 
         merge2(
             arr,
             &mut vec![arr[0]; min_length],
-            separators[0],
-            separators[1],
-            separators[2],
+            sep[0],
+            sep[1],
+            sep[2],
         );
         return;
     }
 
     let mut copy: Vec<T> = vec![arr[0]; (arr.len() / 2) + 2];
-    while separators.len() > 2 {
-        let half = (separators.len() - 1) / 2;
+    while sep.len() > 2 {
+        let half = (sep.len() - 1) / 2;
         for i in 0..half {
             let i2 = i * 2;
             merge2(
                 arr,
                 &mut copy,
-                separators[i2],
-                separators[i2 + 1],
-                separators[i2 + 2],
+                sep[i2],
+                sep[i2 + 1],
+                sep[i2 + 2],
             );
         }
         for i in 0..half {
-            separators.remove(i + 1);
+          sep.remove(i + 1);
         }
     }
 }
