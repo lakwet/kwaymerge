@@ -1,30 +1,49 @@
 use super::super::algorithms::k_way_merge::k_way_merge;
 use super::super::algorithms::k_way_ping_pong_merge::k_way_ping_pong_merge;
+use super::super::algorithms::tournament_tree::tournament_tree;
+use super::super::generators::sawtooth::{
+  random_bounds_sawtooth_array, random_sawtooth_array,
+};
 use super::helpers::speed_test_aux;
+
+fn get_generators(
+) -> Vec<(&'static str, &'static dyn Fn(usize) -> (Vec<u64>, Vec<usize>))> {
+  vec![
+    ("-- random separators:  ", &random_sawtooth_array),
+    ("-- uniform generators: ", &random_bounds_sawtooth_array),
+  ]
+}
 
 #[test]
 fn speed_test() {
-  let array_size = [
-    5_000_000,
-  ];
+  let generators = get_generators();
+  let names = vec!["Naive", "Ping pong", "Tournament tree"];
 
-  let runs = 5;
+  let array_size = [
+    1_000,
+    10_000,
+    50_000,
+    1_000_000,
+  ];
   let with_check = true;
-  let names = vec!["Naive", "Ping pong"];
+  let runs = 10;
 
   println!("Runs: {}", runs);
-
+  println!("With check: {}", with_check);
   for name in names.iter() {
     print!("\t\t\t{}", name);
   }
   println!();
-
   for size in array_size.iter() {
-    print!("Array size: {}", *size);
+    println!("Array size: {}", *size);
 
-    speed_test_aux(&|arr, sep| k_way_merge(arr, sep), runs, *size, with_check);
-    speed_test_aux(&|arr, sep| k_way_ping_pong_merge(arr, sep), runs, *size, with_check);
+    for (gen_name, gen) in generators.iter() {
+      print!("{}", gen_name);
+      speed_test_aux(&|arr, sep| k_way_merge(arr, sep), gen, runs, *size, with_check);
+      speed_test_aux(&|arr, sep| k_way_ping_pong_merge(arr, sep), gen, runs, *size, with_check);
+      speed_test_aux(&|arr, sep| tournament_tree(arr, sep), gen, runs, *size, with_check);
+      println!();
+    }
 
-    println!();
   }
 }

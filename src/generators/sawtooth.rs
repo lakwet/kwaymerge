@@ -30,3 +30,24 @@ pub fn random_sawtooth_array(size: usize) -> (Vec<u64>, Vec<usize>) {
 
   (arr, separators)
 }
+
+pub fn random_bounds_sawtooth_array(size: usize) -> (Vec<u64>, Vec<usize>) {
+  let mut separators = Vec::new();
+  let mut arr = Vec::with_capacity(size);
+  let mut value = 1;
+  let threshold = (size as f64 / (size as f64).log2()) as usize;
+
+  for i in 0..size {
+    if value > threshold {
+      value = 1;
+      separators.push(i);
+    }
+    arr.push(value as u64);
+    value += 1;
+  }
+
+  separators.insert(0, 0);
+  separators.push(size);
+
+  (arr, separators)
+}
